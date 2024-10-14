@@ -1,0 +1,6 @@
+name: notifications_assignment
+
+services:
+
+volumes:
+    data_store:

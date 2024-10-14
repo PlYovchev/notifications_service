@@ -1,0 +1,14 @@
+name: local
+port: 8080
+log_level: debug
+
+email:
+  from:       plyovchev.sumup.temp@gmail.com
+  password:   'btvl ljca menr udgj'
+  recipients: 
+    - plt3ch@gmail.com
+  smtp_host:   smtp.gmail.com
+  smtp_port:   587
+
+slack:
+  webhook_url: https://hooks.slack.com/services/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
