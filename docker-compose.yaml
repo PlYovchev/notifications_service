@@ -1,6 +1,44 @@
-name: notifications_assignment
-
+version: '3'
 services:
+    notifications_service: 
+        build: .
+        environment:
+            - PORT=5050
+            - environment=docker
+            - logLevel=debug
+        deploy:
+            replicas: 3
+        networks:
+            - loadbalancing
+        labels:
+           - "autoheal=true"
+        healthcheck:
+            test: curl --fail http://localhost:5050/status || exit 1
+            interval: 1m
+            timeout: 30s
+            retries: 3
+            start_period: 30s
 
-volumes:
-    data_store:
+    nginx:
+        build: ./nginx
+        container_name: nginx
+        ports:
+            - "3000:80"
+        networks:
+            - loadbalancing
+        depends_on:
+            - notifications_service
+        
+    autoheal:
+        image: willfarrell/autoheal:latest
+        tty: true
+        restart: always
+        environment:
+            - AUTOHEAL_INTERVAL=60
+            - AUTOHEAL_START_PERIOD=300
+            - AUTOHEAL_DEFAULT_STOP_TIMEOUT=10
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+
+networks:
+    loadbalancing:         

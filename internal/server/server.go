@@ -17,19 +17,19 @@ import (
 
 var startOnce sync.Once
 
-func StartService(cfg *config.Config, lgr *logger.AppLogger) {
+func StartService(serviceEnv config.ServiceEnv, cfg *config.Config, lgr *logger.AppLogger) {
 	startOnce.Do(func() {
-		r := WebRouter(cfg, lgr)
-		err := r.Run(":" + cfg.Port)
+		r := WebRouter(serviceEnv, cfg, lgr)
+		err := r.Run(":" + serviceEnv.Port)
 		if err != nil {
 			panic(err)
 		}
 	})
 }
 
-func WebRouter(cfg *config.Config, lgr *logger.AppLogger) *gin.Engine {
+func WebRouter(serviceEnv config.ServiceEnv, cfg *config.Config, lgr *logger.AppLogger) *gin.Engine {
 	ginMode := gin.ReleaseMode
-	if util.IsDevMode(cfg.Name) {
+	if util.IsDevMode(serviceEnv.Name) {
 		ginMode = gin.DebugMode
 		gin.ForceConsoleColor()
 	}
@@ -48,14 +48,8 @@ func WebRouter(cfg *config.Config, lgr *logger.AppLogger) *gin.Engine {
 	internalAPIGrp := router.Group("/internal")
 	internalAPIGrp.Use(middleware.AuthMiddleware())
 	pprof.RouteRegister(internalAPIGrp, "pprof")
-	// status := handlers.NewStatusController(dbMgr)
-	// router.GET("/status", status.CheckStatus) // /status
-
-	// // This is a dev mode only route to seed the local db
-	// if util.IsDevMode(svcEnv.Name) {
-	// 	seed := handlers.NewDataSeedHandler(orders)
-	// 	internalAPIGrp.POST("/seed-local-db", seed.SeedDB) // /seedDB
-	// }
+	status := handlers.NewStatusHandler(lgr)
+	router.GET("/status", status.CheckStatus) // /status
 
 	// Routes - notifications
 	externalAPIGrp := router.Group("/public-api/v1")

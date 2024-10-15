@@ -14,7 +14,7 @@ import (
 )
 
 func TestQueryParamsCheckMiddleware_ValidParams(t *testing.T) {
-	lgr := logger.Setup(&config.Config{Name: "test"})
+	lgr := logger.Setup(config.ServiceEnv{Name: "test"})
 	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
 	c, r := gin.CreateTestContext(resp)
@@ -37,7 +37,7 @@ func TestQueryParamsCheckMiddleware_ValidParams(t *testing.T) {
 }
 
 func TestQueryParamsCheckMiddleware_InvalidParams(t *testing.T) {
-	lgr := logger.Setup(&config.Config{Name: "test"})
+	lgr := logger.Setup(config.ServiceEnv{Name: "test"})
 	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
 	c, r := gin.CreateTestContext(resp)
@@ -59,7 +59,7 @@ func TestQueryParamsCheckMiddleware_InvalidParams(t *testing.T) {
 }
 
 func TestQueryParamsCheckMiddleware_UnregisteredPath(t *testing.T) {
-	lgr := logger.Setup(&config.Config{Name: "test"})
+	lgr := logger.Setup(config.ServiceEnv{Name: "test"})
 	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
 	c, r := gin.CreateTestContext(resp)

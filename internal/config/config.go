@@ -10,14 +10,14 @@ import (
 )
 
 // ErrExitStatus represents the error status in this application.
-const ErrExitStatus int = 2
+const (
+	defaultPort       = "8080"
+	ErrExitStatus int = 2
+)
 
 // Config represents the composition of yml settings.
 type Config struct {
-	LogLevel string `yaml:"log_level"`
-	Name     string
-	Port     string
-	Email    struct {
+	Email struct {
 		From       string
 		Password   string
 		Recipients []string
@@ -31,8 +31,14 @@ type Config struct {
 	}
 }
 
+type ServiceEnv struct {
+	Name     string // name of environment where this service is running
+	Port     string // port on which this service runs, defaults to DefaultPort
+	LogLevel string // logger level for the service
+}
+
 // LoadAppConfig reads the settings written to the yml file
-func LoadAppConfig(yamlFile embed.FS) (*Config, string) {
+func LoadAppConfig(yamlFile embed.FS) *Config {
 	var env *string
 	if value := os.Getenv("WEB_APP_ENV"); value != "" {
 		env = &value
@@ -53,5 +59,31 @@ func LoadAppConfig(yamlFile embed.FS) (*Config, string) {
 		os.Exit(ErrExitStatus)
 	}
 
-	return config, *env
+	return config
+}
+
+// Load the service environment variable related to the service configuration
+func LoadЕnvConfig() ServiceEnv {
+	envName := os.Getenv("environment")
+	if envName == "" {
+		envName = "local"
+	}
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
+	}
+
+	logLevel := os.Getenv("logLevel")
+	if logLevel == "" {
+		logLevel = "info"
+	}
+
+	envConfigurations := ServiceEnv{
+		Name:     envName,
+		Port:     port,
+		LogLevel: logLevel,
+	}
+
+	return envConfigurations
 }

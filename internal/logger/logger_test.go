@@ -18,7 +18,7 @@ import (
 
 func TestSetup(t *testing.T) {
 	// Prepare mock service environment
-	cfg := &config.Config{Name: "dev"}
+	cfg := config.ServiceEnv{Name: "dev"}
 
 	// Call Setup function
 	lgr := logger.Setup(cfg)
@@ -29,7 +29,7 @@ func TestSetup(t *testing.T) {
 
 func TestWithReqID(t *testing.T) {
 	// Prepare mock service environment
-	cfg := &config.Config{Name: "test"}
+	cfg := config.ServiceEnv{Name: "test"}
 
 	// Call Setup function
 	lgr := logger.Setup(cfg)
@@ -62,7 +62,7 @@ func TestWithReqID(t *testing.T) {
 
 func TestSetupOnce(t *testing.T) {
 	// Prepare mock service environment
-	cfg := &config.Config{Name: "test"}
+	cfg := config.ServiceEnv{Name: "test"}
 
 	// Use a temporary file for logging
 	tempFile, err := os.CreateTemp("", "uTest.log")

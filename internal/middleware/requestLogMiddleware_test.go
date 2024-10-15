@@ -31,7 +31,7 @@ func TestRequestLogMiddleware(_ *testing.T) {
 	resp := httptest.NewRecorder()
 	gin.SetMode(gin.TestMode)
 	c, r := gin.CreateTestContext(resp)
-	r.Use(middleware.RequestLogMiddleware(logger.Setup(&config.Config{})))
+	r.Use(middleware.RequestLogMiddleware(logger.Setup(config.ServiceEnv{})))
 
 	for _, tc := range testCases {
 		r.GET(tc.InputReqPath, func(ctx *gin.Context) {

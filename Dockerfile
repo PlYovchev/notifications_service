@@ -11,11 +11,11 @@ RUN go mod download && go mod verify
 COPY . .
 RUN make build
 
-
 FROM golang:alpine
+
+RUN apk update && apk add curl
+
 WORKDIR /app/
-ARG port
-ENV logLevel=debug
 COPY --from=builder /usr/src/app/app .
+
 ENTRYPOINT ["./app"]
-EXPOSE $port

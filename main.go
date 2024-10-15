@@ -15,7 +15,6 @@ var yamlFile embed.FS
 
 const (
 	serviceName = "notification-gateway"
-	defaultPort = "8080"
 )
 
 // Passed while building from  make file.
@@ -31,23 +30,23 @@ func run() error {
 	upTime := time.Now().UTC().Format(time.RFC3339)
 	// setup : read environmental configurations
 	// setup : service logger
-	config, _ := config.LoadAppConfig(yamlFile)
+	cfg := config.LoadAppConfig(yamlFile)
+	serviceEnv := config.LoadЕnvConfig()
 
 	// setup : service logger
-	lgr := logger.Setup(config)
-
-	lgr.Info().Msgf("config email %s", config)
+	lgr := logger.Setup(serviceEnv)
 
 	lgr.Info().
 		Str("name", serviceName).
-		Str("environment", config.Name).
+		Str("environment", serviceEnv.Name).
 		Str("started", upTime).
 		Str("version", version).
-		Str("logLevel", config.LogLevel).
+		Str("logLevel", serviceEnv.LogLevel).
+		Str("port", serviceEnv.Port).
 		Msg("service details, starting the service")
 
 	// setup : start service
-	server.StartService(config, lgr)
+	server.StartService(serviceEnv, cfg, lgr)
 
 	lgr.Fatal().Msg("service stopped")
 	return nil

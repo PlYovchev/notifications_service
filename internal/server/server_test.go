@@ -12,12 +12,10 @@ import (
 )
 
 func TestListOfRoutes(t *testing.T) {
-	config := &config.Config{
-		Name: "test",
-		Port: "8080",
-	}
-	lgr := logger.Setup(config)
-	router := server.WebRouter(config, lgr)
+	serviceEnv := config.ServiceEnv{Name: "test"}
+	config := &config.Config{}
+	lgr := logger.Setup(serviceEnv)
+	router := server.WebRouter(serviceEnv, config, lgr)
 	list := router.Routes()
 	mode := gin.Mode()
 

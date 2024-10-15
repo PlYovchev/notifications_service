@@ -23,16 +23,24 @@ type AppLogger struct {
 	zLogger zerolog.Logger
 }
 
-func Setup(config *config.Config) *AppLogger {
+func Setup(serviceEnv config.ServiceEnv) *AppLogger {
 	setupOnce.Do(func() {
 		appLogger = &AppLogger{}
-		lvl := ZerologLevel(config.LogLevel)
+		lvl := ZerologLevel(serviceEnv.LogLevel)
 		zerolog.ErrorStackMarshaler = pkgerrors.MarshalStack
 		zerolog.TimeFieldFormat = time.RFC3339Nano
 		var logDest io.Writer
 		logDest = os.Stdout
-		if util.IsDevMode(config.Name) {
+		if util.IsDevMode(serviceEnv.Name) {
 			logDest = zerolog.ConsoleWriter{Out: logDest}
+		} else {
+			runLogFile, _ := os.OpenFile(
+				"myapp.log",
+				os.O_APPEND|os.O_CREATE|os.O_WRONLY,
+				0664,
+			)
+
+			logDest = runLogFile
 		}
 		appLogger.zLogger = zerolog.New(logDest).With().Caller().Timestamp().Logger().Level(lvl)
 	})
