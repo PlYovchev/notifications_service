@@ -6,6 +6,7 @@ const UnexpectedErrorMessage = "unexpected Error occurred, please try again late
 
 const (
 	PushNotificationInvalidParams  = "push_notification_invalid_params"
+	FailedToInsertInDb  = "failed_to_insert_in_db"
 	 
 	OrderGetInvalidParams     = prefix + "get_invalid_params"
 	OrderGetUnauthorized      = prefix + "get_unauthorized"

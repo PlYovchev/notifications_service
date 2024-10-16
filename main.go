@@ -43,6 +43,11 @@ func run() error {
 		Str("version", version).
 		Str("logLevel", serviceEnv.LogLevel).
 		Str("port", serviceEnv.Port).
+		Str("dialect", cfg.Database.Dialect).
+		Str("Dbname", cfg.Database.Dbname).
+		Str("Host", cfg.Database.Host).
+		Str("Password", cfg.Database.Password).
+		Str("Username", cfg.Database.Username).
 		Msg("service details, starting the service")
 
 	// setup : start service

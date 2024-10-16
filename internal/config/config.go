@@ -27,7 +27,13 @@ type Config struct {
 	Slack struct {
 		WebhookUrl string `yaml:"webhook_url"`
 	}
-	Kafka struct {
+	Database struct {
+		Dialect  string
+		Host     string
+		Port     string
+		Username string
+		Dbname   string
+		Password string
 	}
 }
 

@@ -8,3 +8,11 @@ email:
 
 slack:
   webhook_url: https://hooks.slack.com/services/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
+
+database: 
+  dialect: postgres
+  host: postgres
+  port: 5432
+  username: postgres
+  dbname: postgres
+  password: postgres
