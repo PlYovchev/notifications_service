@@ -18,12 +18,7 @@ const (
 	channelBufferSize              = 10
 )
 
-type Notifier interface {
-	SendNotification(notification *data.Notification) error
-}
-
 type NotificationsService interface {
-	createNotifierForNotificationType(deliveryChannel data.DeliveryChannel) Notifier
 	SendNotification(notification *data.Notification) error
 	OnNotificationsReceived(notificationIds []int)
 	StartNotificationService()
@@ -51,6 +46,8 @@ func NewNotificationService(
 	}
 }
 
+// A hook which to wake the service's polling thread and notify it that new notifications arrived
+// and should be processed.
 func (service *notificationService) OnNotificationsReceived(notificationIds []int) {
 	service.lock.Lock()
 	if service.isNotificationChannelOpen {
@@ -95,6 +92,10 @@ func (service *notificationService) StopNotificationService() {
 	service.lock.Unlock()
 }
 
+// Process any pending notifications.
+//
+// The notificationIds are ids of the notifications that should be processed if they are pending.
+// The notificationIds could be nil in which case all stored pending notifications are processed.
 func (service *notificationService) processPendingNotifications(notificationIds []int) {
 	service.logger.Debug().Msg("Processing pending notifications started")
 
@@ -156,6 +157,7 @@ func (service *notificationService) processPendingNotifications(notificationIds 
 	service.logger.Debug().Msg("Processing pending notification finished")
 }
 
+// Update in the repository the new status of the processed notifications.
 func (service *notificationService) updateNotificationStatuses(
 	notifications []data.Notification,
 	failedNotificationsMap map[int]bool,
@@ -184,26 +186,8 @@ func (service *notificationService) updateNotificationStatuses(
 	}
 }
 
-func (service *notificationService) createNotifierForNotificationType(deliveryChannel data.DeliveryChannel) Notifier {
-	if deliveryChannel == data.Email {
-		emailSenderConfig := notifiers.EmailSenderConfig{
-			From:       service.config.Email.From,
-			Password:   service.config.Email.Password,
-			Recipients: service.config.Email.Recipients,
-			SmtpHost:   service.config.Email.SmtpHost,
-			SmtpPort:   service.config.Email.SmtpPort,
-		}
-
-		return notifiers.NewEmailNotifier(emailSenderConfig, service.logger)
-	} else if deliveryChannel == data.Slack {
-		return notifiers.NewSlackNotifier(service.config.Slack.WebhookUrl, service.logger)
-	}
-
-	return nil
-}
-
 func (service *notificationService) SendNotification(notification *data.Notification) error {
-	notifier := service.createNotifierForNotificationType(notification.DeliveryChannel)
+	notifier := notifiers.CreateNotifierForChannel(notification.DeliveryChannel, service.config, service.logger)
 
 	if err := notifier.SendNotification(notification); err != nil {
 		service.logger.Error().Err(err).Msgf("The notification with key '%s' could not be sent!", notification.Key)

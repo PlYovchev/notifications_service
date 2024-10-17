@@ -10,9 +10,9 @@ type APIError struct {
 	ErrorCode      string `json:"errorCode"`
 }
 
+// The input properties of a notification request.
 type NotificationInput struct {
-	Key string `json:"Key"`
-	// Type             data.NotificationType  `json:"type" binding:"required"`
+	Key              string                 `json:"Key"`
 	Message          string                 `json:"message" binding:"required"`
 	DeliveryChannels []data.DeliveryChannel `json:"deliveryChannels"`
 }

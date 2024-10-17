@@ -23,7 +23,7 @@ func NewNotificationRepository(dbClient db.DbClient) NotificationRepository {
 	}
 }
 
-// Create persists this category data.
+// Create persists this notification data.
 func (repository *noticationRepository) Create(notification *data.Notification) (*data.Notification, error) {
 	if err := repository.dbClient.Create(notification).Error; err != nil {
 		return nil, err
@@ -31,7 +31,7 @@ func (repository *noticationRepository) Create(notification *data.Notification) 
 	return notification, nil
 }
 
-// FindAll returns all categories of the category table.
+// FindAll returns all notification of the notification table.
 func (repository *noticationRepository) FindAll() (*[]data.Notification, error) {
 	var notifications []data.Notification
 	if err := repository.dbClient.Find(&notifications).Error; err != nil {
@@ -49,7 +49,7 @@ func (repository *noticationRepository) FindAllByIds(ids []int) (*[]data.Notific
 	return &notifications, nil
 }
 
-// Returns all notificaitons in specified status.
+// Returns all notifications in specified status.
 func (repository *noticationRepository) FindAllByStatus(status data.NotificationStatus) (*[]data.Notification, error) {
 	var notifications []data.Notification
 	if err := repository.dbClient.Where("status = (?)", status).Find(&notifications).Error; err != nil {
@@ -58,7 +58,7 @@ func (repository *noticationRepository) FindAllByStatus(status data.Notification
 	return &notifications, nil
 }
 
-// Save persists this book data.
+// Save persists this notification data.
 func (repository *noticationRepository) Save(notification *data.Notification) (*data.Notification, error) {
 	if err := repository.dbClient.Save(notification).Error; err != nil {
 		return nil, err

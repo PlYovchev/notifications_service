@@ -35,6 +35,8 @@ func NewNotificationsHandler(
 	}
 }
 
+// Handles a push notification request. Expects a HTTP POST request.
+// The body of the request should contain an input in the form of NotificationInput.
 func (handler *NotificationsHandler) PushNotification(ginContext *gin.Context) {
 	lgr, requestId := handler.logger.WithReqID(ginContext)
 
@@ -57,7 +59,8 @@ func (handler *NotificationsHandler) PushNotification(ginContext *gin.Context) {
 		return
 	}
 
-	notifications := createNotificationFromInput(notificationInput)
+	// Persist the newly created notifications from the input.
+	notifications := createNotificationsFromInput(notificationInput)
 	for _, notification := range notifications {
 		if _, err := handler.notificationRepository.Create(notification); err != nil {
 			dbApiErr := &external.APIError{
@@ -78,13 +81,15 @@ func (handler *NotificationsHandler) PushNotification(ginContext *gin.Context) {
 		}
 	}
 
+	// Notify the notification service that new notifications have been received.
+	// The notification ids are also sent so the new notifications could be prioritized.
 	notificationIds := util.Map(notifications, func(notification *data.Notification) int { return notification.Id })
 	handler.notificationService.OnNotificationsReceived(notificationIds)
 
 	ginContext.JSON(http.StatusOK, notificationIds)
 }
 
-func createNotificationFromInput(notificationInput external.NotificationInput) []*data.Notification {
+func createNotificationsFromInput(notificationInput external.NotificationInput) []*data.Notification {
 	if len(notificationInput.DeliveryChannels) == 0 {
 		return nil
 	}
