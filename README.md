@@ -43,11 +43,20 @@ The behavior of the notification service app is depicted on the diagram above. T
 5. Upon completion of sending of the notifications or exhausting the retry count, the notifications are saved in the database with updated status, respectively 'completed' and 'failed'.
 6. The notification status 'completed' and 'failed' are considered terminal at the moment.
 
+## Deployment
+The configuration in the docker-compose.yaml deploys 4 services:
+1. **notification_service** - this service is the Golang application. It is configured to be deployed with 3 replicas and health checks.
+2. **nginx** - the reverse proxy service is configured to use the 3 replicas for loadbalancing using the least connections strategy. It is also performing rate-limiting of 50 request per second per IP.
+3. **postgres** - the database service.
+4. **autoheal** - this service is responsible to redeploy the **notification_service** if the service is deemed unhealthy.
+
 ## Running the project
 
 #### Pre-requisites: **Docker**, **Docker Compose**, **Make**
 
-1. ```make start``` - the **start** target calls ``docker-compose up -d`` so docker compose has to be installed in advance.
+1. ```make setup``` - builds the docker images.   
+2. ```make start``` - the **start** target calls ``docker-compose up -d`` so docker compose has to be installed in advance.
+3. ```make clean``` - stops containers and removes containers, networks, volumes, and images.
 
 #### Configuring the **notifiers**.
 The notifiers use properties which are sourced from **/resources/config/application.*.yml**. When running this setup with ``make start``, use **/resources/config/application.docker.yml**.
