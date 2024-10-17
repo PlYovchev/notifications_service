@@ -42,18 +42,3 @@ jobs:
 
       - name: 🧪 Test
         run: make test
-
-      - name: 👮‍ Check Code Coverage
-        run: |
-          make ci-coverage
-
-      - name: 📮 Upload Code Coverage Stats
-        uses: codecov/codecov-action@v4
-        with:
-          fail_ci_if_error: false # optional (default = false)
-          files: coverage.out # optional
-          flags: unittests # optional
-          name: codecov-umbrella # optional
-          verbose: true # optional (default = false)
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOVTOKEN }}

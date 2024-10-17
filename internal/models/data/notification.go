@@ -30,14 +30,14 @@ const (
 )
 
 type Notification struct {
-	Id              int                `gorm:"primary_key" json:"id"`
-	Key             string             `json:"key"`
-	Message         string             `json:"message"`
+	Id      int    `gorm:"primary_key" json:"id"`
+	Key     string `json:"key"`
+	Message string `json:"message"`
 	// The status of the notification.
-	Status          NotificationStatus `json:"status"`
+	Status NotificationStatus `json:"status"`
 	// The channels over which the notification should be delivered.
-	DeliveryChannel DeliveryChannel    `json:"delivery_channel"`
-	CreatedAt       time.Time          `json:"created_at"`
+	DeliveryChannel DeliveryChannel `json:"delivery_channel"`
+	CreatedAt       time.Time       `json:"created_at"`
 }
 
 // TableName returns the table name of account struct and it is used by gorm.
