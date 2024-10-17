@@ -12,9 +12,6 @@ PROJECT_NAME = $(shell basename "$(PWD)" | tr '[:upper:]' '[:lower:]')
 VERSION ?= $(shell git rev-parse --short HEAD)
 LDFLAGS := -ldflags "-X main.version=${VERSION}"
 
-DOCKER_IMAGE_NAME := "$(PROJECT_NAME):$(VERSION)"
-DOCKER_CONTAINER_NAME := "$(PROJECT_NAME)-$(VERSION)"
-
 MODULE = $(shell go list -m)
 
 ## start: Starts everything that is required to serve the APIs
@@ -23,7 +20,7 @@ start:
 
 ## setup: Start the dependencies only
 setup:
-	docker-compose up -d
+	docker-compose build
 
 ## run: Run the API server alone (without supplementary services such as DB etc.,)
 run:
@@ -63,46 +60,6 @@ clean:
 	docker ps --filter name=orders -q | xargs docker stop
 	docker network ls --filter name=orders -q | xargs docker prune --force
 	docker volume ls --filter name=orders -q | xargs docker volume rm
-
-## docker-build: Build the API server as a docker image
-docker-build:
-	$(info ---> Building Docker Image: ${DOCKER_IMAGE_NAME}, Exposed Port: ${port})
-	docker build -t ${DOCKER_IMAGE_NAME} . \
-		--build-arg port=${port} \
-
-docker-build-debug:
-	$(info ---> Building Docker Image: ${DOCKER_IMAGE_NAME}, Exposed Port: ${port})
-	docker build --no-cache --progress plain -t ${DOCKER_IMAGE_NAME} . \
-		--build-arg port=${port}
-
-## docker-run: Run the API server as a docker container
-docker-run:
-	$(info ---> Running Docker Container: ${DOCKER_CONTAINER_NAME} in Environment: ${profile})
-	docker run --name ${DOCKER_CONTAINER_NAME} -it \
-				--env environment=${profile} \
-				$(DOCKER_IMAGE_NAME)
-
-## docker-start: Builds Docker image and runs it.
-docker-start: docker-build docker-run
-
-## docker-stop: Stops the docker container
-docker-stop:
-	docker stop $(DOCKER_CONTAINER_NAME)
-
-## docker-remove: Removes the docker images and containers
-docker-remove:
-	docker rm $(DOCKER_CONTAINER_NAME)
-	docker rmi $(DOCKER_IMAGE_NAME)
-
-## docker-clean: Cleans all docker resources
-docker-clean: docker-clean-service-images docker-clean-build-images
-
-## docker-clean-service-images: Stops and Removes the service images
-docker-clean-service-images: docker-stop docker-remove
-
-## docker-clean-build-images: Removes build images
-docker-clean-build-images:
-	docker rmi $(docker images --filter label="builder=true")
 
 .PHONY: help
 help: Makefile
