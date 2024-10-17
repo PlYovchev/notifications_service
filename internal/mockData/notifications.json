@@ -1,15 +1,17 @@
 [
     {
+        "id": "1",
         "key": "payment_cancelled",
-        "type": "info",
         "deliveryChannels": ["email"],
+        "status": "pending",
         "message": "The payment has been cancelled!",
         "createdAt":  "2024-04-27T08:00:00Z"
     },
     {
+        "id": "2",
         "key": "payment_settled",
-        "type": "info",
         "deliveryChannels": ["slack"],
+        "status": "completed",
         "message": "The payment has been settled!",
         "createdAt":  "2024-04-29T10:45:00Z"
     }
