@@ -3,7 +3,6 @@ package repositories
 import (
 	"github.com/plyovchev/sumup-assignment-notifications/internal/db"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/models/data"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/util"
 )
 
 type NotificationRepository interface {
@@ -44,8 +43,7 @@ func (repository *noticationRepository) FindAll() (*[]data.Notification, error) 
 // Returns all notifications in specified status.
 func (repository *noticationRepository) FindAllByIds(ids []int) (*[]data.Notification, error) {
 	var notifications []data.Notification
-	idsArr := util.ArrayToString(ids, ", ")
-	if err := repository.dbClient.Where("id in (?)", idsArr).Find(&notifications).Error; err != nil {
+	if err := repository.dbClient.Find(&notifications, ids).Error; err != nil {
 		return nil, err
 	}
 	return &notifications, nil
@@ -54,7 +52,7 @@ func (repository *noticationRepository) FindAllByIds(ids []int) (*[]data.Notific
 // Returns all notificaitons in specified status.
 func (repository *noticationRepository) FindAllByStatus(status data.NotificationStatus) (*[]data.Notification, error) {
 	var notifications []data.Notification
-	if err := repository.dbClient.Where("id = (?)", status).Find(&notifications).Error; err != nil {
+	if err := repository.dbClient.Where("status = (?)", status).Find(&notifications).Error; err != nil {
 		return nil, err
 	}
 	return &notifications, nil

@@ -26,7 +26,7 @@ func NewStatusHandler(logger *logger.AppLogger) *StatusHandler {
 
 // CheckStatus - Checks the health of all the dependencies of the service to ensure complete serviceability.
 func (s *StatusHandler) CheckStatus(c *gin.Context) {
-	var code int = http.StatusOK
+	var code = http.StatusOK
 
 	// send response
 	c.JSON(code, UP)

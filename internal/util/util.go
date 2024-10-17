@@ -11,7 +11,7 @@ func IsDevMode(s string) bool {
 }
 
 func ArrayToString(a []int, delim string) string {
-	return strings.Trim(strings.Replace(fmt.Sprint(a), " ", delim, -1), "[]")
+	return strings.Trim(strings.ReplaceAll(fmt.Sprint(a), " ", delim), "[]")
 }
 
 func Map[T, U any](ts []T, f func(T) U) []U {

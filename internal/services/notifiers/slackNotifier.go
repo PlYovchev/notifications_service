@@ -2,12 +2,16 @@ package notifiers
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/models/data"
 )
+
+const slackWebhookTimeout = 30 * time.Second
 
 type SlackNotifier struct {
 	logger     *logger.AppLogger
@@ -27,12 +31,15 @@ func (notifier *SlackNotifier) SendNotification(notification *data.Notification)
 	var jsonStr = fmt.Sprintf("{\"text\":\"%s\"}", notification.Message)
 	var jsonBytes = []byte(jsonStr)
 
-	req, _ := http.NewRequest("POST", notifier.webhookUrl, bytes.NewBuffer(jsonBytes))
+	ctx, cancel := context.WithTimeout(context.Background(), slackWebhookTimeout)
+	defer cancel()
+
+	req, _ := http.NewRequestWithContext(ctx, http.MethodPost, notifier.webhookUrl, bytes.NewBuffer(jsonBytes))
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	resp, err := client.Do(req)
-	if err != nil || resp.StatusCode != 200 {
+	if err != nil || resp.StatusCode != http.StatusOK {
 		return err
 	}
 

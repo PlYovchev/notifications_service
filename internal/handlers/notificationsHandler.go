@@ -5,23 +5,33 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/db"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/errors"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/models/data"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/models/external"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/repositories"
+	"github.com/plyovchev/sumup-assignment-notifications/internal/services"
+	"github.com/plyovchev/sumup-assignment-notifications/internal/util"
 )
 
 type NotificationsHandler struct {
-	config *config.Config
-	logger *logger.AppLogger
+	config                 *config.Config
+	notificationService    services.NotificationsService
+	notificationRepository repositories.NotificationRepository
+	logger                 *logger.AppLogger
 }
 
-func NewNotificationsHandler(cfg *config.Config, logger *logger.AppLogger) *NotificationsHandler {
+func NewNotificationsHandler(
+	cfg *config.Config,
+	notificationService services.NotificationsService,
+	notificationRepository repositories.NotificationRepository,
+	logger *logger.AppLogger,
+) *NotificationsHandler {
 	return &NotificationsHandler{
-		config: cfg,
-		logger: logger,
+		config:                 cfg,
+		notificationService:    notificationService,
+		notificationRepository: notificationRepository,
+		logger:                 logger,
 	}
 }
 
@@ -47,12 +57,9 @@ func (handler *NotificationsHandler) PushNotification(ginContext *gin.Context) {
 		return
 	}
 
-	dbClient := db.NewDbClient(db.SCHEMA, lgr, handler.config)
-	notificationRepository := repositories.NewNotificationRepository(dbClient)
-
 	notifications := createNotificationFromInput(notificationInput)
 	for _, notification := range notifications {
-		if _, err := notificationRepository.Create(&notification); err != nil {
+		if _, err := handler.notificationRepository.Create(notification); err != nil {
 			dbApiErr := &external.APIError{
 				HTTPStatusCode: http.StatusInternalServerError,
 				ErrorCode:      errors.FailedToInsertInDb,
@@ -71,18 +78,20 @@ func (handler *NotificationsHandler) PushNotification(ginContext *gin.Context) {
 		}
 	}
 
-	// notificationService := services.NewNotificationService(handler.config, lgr)
-	// notificationService.SendNotification(notification)
+	notificationIds := util.Map(notifications, func(notification *data.Notification) int { return notification.Id })
+	handler.notificationService.OnNotificationsReceived(notificationIds)
+
+	ginContext.JSON(http.StatusOK, notificationIds)
 }
 
-func createNotificationFromInput(notificationInput external.NotificationInput) []data.Notification {
+func createNotificationFromInput(notificationInput external.NotificationInput) []*data.Notification {
 	if len(notificationInput.DeliveryChannels) == 0 {
 		return nil
 	}
 
-	var notifications []data.Notification = make([]data.Notification, len(notificationInput.DeliveryChannels))
+	var notifications = make([]*data.Notification, len(notificationInput.DeliveryChannels))
 	for i, deliveryChannel := range notificationInput.DeliveryChannels {
-		notifications[i] = data.Notification{
+		notifications[i] = &data.Notification{
 			Key:             notificationInput.Key,
 			Message:         notificationInput.Message,
 			DeliveryChannel: deliveryChannel,

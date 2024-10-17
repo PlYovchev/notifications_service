@@ -13,6 +13,10 @@ import (
 	"github.com/rs/zerolog/pkgerrors"
 )
 
+const (
+	logFileName = "app.log"
+)
+
 var (
 	setupOnce sync.Once
 	appLogger *AppLogger
@@ -35,7 +39,7 @@ func Setup(serviceEnv config.ServiceEnv) *AppLogger {
 			logDest = zerolog.ConsoleWriter{Out: logDest}
 		} else {
 			runLogFile, _ := os.OpenFile(
-				"myapp.log",
+				logFileName,
 				os.O_APPEND|os.O_CREATE|os.O_WRONLY,
 				0664,
 			)

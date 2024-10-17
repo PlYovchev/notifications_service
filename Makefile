@@ -6,7 +6,7 @@ include .env
 export $(shell sed 's/=.*//' .env)
 endif
 
-PROJECT_NAME := $(shell basename "$(PWD)" | tr '[:upper:]' '[:lower:]')
+PROJECT_NAME = $(shell basename "$(PWD)" | tr '[:upper:]' '[:lower:]')
 
 # GIT commit id will be used as version of the application
 VERSION ?= $(shell git rev-parse --short HEAD)
@@ -17,13 +17,9 @@ DOCKER_CONTAINER_NAME := "$(PROJECT_NAME)-$(VERSION)"
 
 MODULE = $(shell go list -m)
 
-testCoverageCmd := $(shell go tool cover -func=coverage.out | grep total | grep -Eo '[0-9]+\.[0-9]+')
-TEST_COVERAGE_THRESHOLD = 50
-
 ## start: Starts everything that is required to serve the APIs
 start:
 	docker-compose up -d
-	make run
 
 ## setup: Start the dependencies only
 setup:
@@ -78,14 +74,6 @@ docker-build-debug:
 	$(info ---> Building Docker Image: ${DOCKER_IMAGE_NAME}, Exposed Port: ${port})
 	docker build --no-cache --progress plain -t ${DOCKER_IMAGE_NAME} . \
 		--build-arg port=${port}
-
-## owasp-report: Generate OWASP report
-owasp-report:
-	vacuum html-report -z OpenApi-v1.yaml
-
-## go-work: Generate the go work file
-go-work:
-	go work init .
 
 ## docker-run: Run the API server as a docker container
 docker-run:

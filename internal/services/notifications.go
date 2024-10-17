@@ -1,6 +1,7 @@
 package services
 
 import (
+	"sync"
 	"time"
 
 	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
@@ -12,9 +13,9 @@ import (
 )
 
 const (
-	notificationServicePollingTimeInSeconds = 30 * time.Second
-	retryAttempts                           = 3
-	channelBufferSize                       = 10
+	notificationServicePollingTime = 30 * time.Second
+	retryAttempts                  = 3
+	channelBufferSize              = 10
 )
 
 type Notifier interface {
@@ -24,7 +25,7 @@ type Notifier interface {
 type NotificationsService interface {
 	createNotifierForNotificationType(deliveryChannel data.DeliveryChannel) Notifier
 	SendNotification(notification *data.Notification) error
-	OnNotificationsReceived() error
+	OnNotificationsReceived(notificationIds []int)
 	StartNotificationService()
 }
 
@@ -33,38 +34,70 @@ type notificationService struct {
 	logger                       *logger.AppLogger
 	notificationRepository       repositories.NotificationRepository
 	receivedNotificationsChannel chan []int
+	isNotificationChannelOpen    bool
+	lock                         sync.Mutex
 }
 
-func NewNotificationService(repository repositories.NotificationRepository, config *config.Config, logger *logger.AppLogger) NotificationsService {
-	receivedNotificationsChannel := make(chan []int, channelBufferSize)
-
+func NewNotificationService(
+	repository repositories.NotificationRepository,
+	config *config.Config,
+	logger *logger.AppLogger,
+) NotificationsService {
 	return &notificationService{
-		notificationRepository:       repository,
-		config:                       config,
-		logger:                       logger,
-		receivedNotificationsChannel: receivedNotificationsChannel,
+		notificationRepository:    repository,
+		config:                    config,
+		logger:                    logger,
+		isNotificationChannelOpen: false,
 	}
 }
 
-func (service *notificationService) OnNotificationsReceived() error {
+func (service *notificationService) OnNotificationsReceived(notificationIds []int) {
+	service.lock.Lock()
+	if service.isNotificationChannelOpen {
+		service.receivedNotificationsChannel <- notificationIds
+	}
 
+	service.lock.Unlock()
 }
 
+// Start the notification service observer functionality.
+// The observer functionality waits for notificationIds to arrive over a channel,
+// or executes after a specified period/timeout to process and send all pending notifications.
 func (service *notificationService) StartNotificationService() {
+	service.logger.Info().Msg("Notification service observer started")
+
+	service.lock.Lock()
+	{
+		service.receivedNotificationsChannel = make(chan []int, channelBufferSize)
+		service.isNotificationChannelOpen = true
+	}
+	service.lock.Unlock()
+
 	go func(receivedNotificationChannel chan []int) {
-		for true {
+		for {
 			select {
 			case receivedNotificationIds := <-receivedNotificationChannel:
 				service.processPendingNotifications(receivedNotificationIds)
-			case <-time.After(notificationServicePollingTimeInSeconds):
+			case <-time.After(notificationServicePollingTime):
 				service.processPendingNotifications(nil)
 			}
-
 		}
 	}(service.receivedNotificationsChannel)
 }
 
+// Stops the notification service observer functionality.
+func (service *notificationService) StopNotificationService() {
+	service.lock.Lock()
+	{
+		service.isNotificationChannelOpen = false
+		close(service.receivedNotificationsChannel)
+	}
+	service.lock.Unlock()
+}
+
 func (service *notificationService) processPendingNotifications(notificationIds []int) {
+	service.logger.Debug().Msg("Processing pending notifications started")
+
 	var notifications *[]data.Notification
 	var err error
 
@@ -75,7 +108,7 @@ func (service *notificationService) processPendingNotifications(notificationIds 
 	}
 
 	if err != nil {
-		var idsArr string = ""
+		var idsArr = ""
 		if notificationIds != nil {
 			idsArr = util.ArrayToString(notificationIds, ", ")
 		}
@@ -84,6 +117,11 @@ func (service *notificationService) processPendingNotifications(notificationIds 
 			Err(err).
 			Str("notificationIds", idsArr).
 			Msg("Could not retrieve notifications data")
+		return
+	}
+
+	if len(*notifications) == 0 {
+		service.logger.Debug().Msg("Processing pending notification finished due to 0 pending notification")
 		return
 	}
 
@@ -113,7 +151,16 @@ func (service *notificationService) processPendingNotifications(notificationIds 
 		}
 	}
 
-	for _, notification := range *notifications {
+	service.updateNotificationStatuses(*notifications, retryNotificationIds)
+
+	service.logger.Debug().Msg("Processing pending notification finished")
+}
+
+func (service *notificationService) updateNotificationStatuses(
+	notifications []data.Notification,
+	failedNotificationsMap map[int]bool,
+) {
+	for _, notification := range notifications {
 		updatedNotification := &data.Notification{
 			Id:              notification.Id,
 			Key:             notification.Key,
@@ -122,14 +169,18 @@ func (service *notificationService) processPendingNotifications(notificationIds 
 			CreatedAt:       notification.CreatedAt,
 		}
 
-		shouldRetry, present := retryNotificationIds[notification.Id]
+		shouldRetry, present := failedNotificationsMap[notification.Id]
 		if present && !shouldRetry {
 			updatedNotification.Status = data.Completed
 		} else {
 			updatedNotification.Status = data.Failed
 		}
 
-		service.notificationRepository.Save(updatedNotification)
+		_, err := service.notificationRepository.Save(updatedNotification)
+		service.logger.Error().
+			Err(err).
+			Int("notificationId", notification.Id).
+			Msg("Failed to update notification status.")
 	}
 }
 

@@ -6,9 +6,11 @@ import (
 
 	"github.com/gin-contrib/gzip"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
+	"github.com/plyovchev/sumup-assignment-notifications/internal/db"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
+	"github.com/plyovchev/sumup-assignment-notifications/internal/repositories"
+	"github.com/plyovchev/sumup-assignment-notifications/internal/services"
 
-	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/handlers"
 	"github.com/plyovchev/sumup-assignment-notifications/internal/middleware"
@@ -45,11 +47,11 @@ func WebRouter(serviceEnv config.ServiceEnv, cfg *config.Config, lgr *logger.App
 	router.Use(middleware.RequestLogMiddleware(lgr))
 	router.Use(gin.Recovery())
 
-	internalAPIGrp := router.Group("/internal")
-	internalAPIGrp.Use(middleware.AuthMiddleware())
-	pprof.RouteRegister(internalAPIGrp, "pprof")
 	status := handlers.NewStatusHandler(lgr)
 	router.GET("/status", status.CheckStatus) // /status
+
+	// Instantiate a DB client
+	dbClient := db.NewDBClient(db.SCHEMA, lgr, cfg)
 
 	// Routes - notifications
 	externalAPIGrp := router.Group("/public-api/v1")
@@ -58,7 +60,7 @@ func WebRouter(serviceEnv config.ServiceEnv, cfg *config.Config, lgr *logger.App
 	{
 		notificationsGroup := externalAPIGrp.Group("notifications")
 		{
-			notifications := handlers.NewNotificationsHandler(cfg, lgr)
+			notifications := createNotificationHander(dbClient, cfg, lgr)
 			notificationsGroup.POST("/push-notification", notifications.PushNotification)
 		}
 	}
@@ -71,4 +73,13 @@ func WebRouter(serviceEnv config.ServiceEnv, cfg *config.Config, lgr *logger.App
 			Send()
 	}
 	return router
+}
+
+func createNotificationHander(dbClient db.DbClient, cfg *config.Config, lgr *logger.AppLogger) *handlers.NotificationsHandler {
+	repository := repositories.NewNotificationRepository(dbClient)
+
+	notificationService := services.NewNotificationService(repository, cfg, lgr)
+	notificationService.StartNotificationService()
+
+	return handlers.NewNotificationsHandler(cfg, notificationService, repository, lgr)
 }

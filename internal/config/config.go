@@ -18,23 +18,23 @@ const (
 // Config represents the composition of yml settings.
 type Config struct {
 	Email struct {
-		From       string
-		Password   string
-		Recipients []string
-		SmtpHost   string `yaml:"smtp_host"`
-		SmtpPort   string `yaml:"smtp_port"`
-	}
+		From       string   `yaml:"from"`
+		Password   string   `yaml:"password"`
+		Recipients []string `yaml:"recipients"`
+		SmtpHost   string   `yaml:"smtp_host"`
+		SmtpPort   string   `yaml:"smtp_port"`
+	} `yaml:"email"`
 	Slack struct {
 		WebhookUrl string `yaml:"webhook_url"`
-	}
+	} `yaml:"slack"`
 	Database struct {
-		Dialect  string
-		Host     string
-		Port     string
-		Username string
-		Dbname   string
-		Password string
-	}
+		Dialect  string `yaml:"dialect"`
+		Host     string `yaml:"host"`
+		Port     string `yaml:"port"`
+		Username string `yaml:"username"`
+		Dbname   string `yaml:"dbname"`
+		Password string `yaml:"password"`
+	} `yaml:"database"`
 }
 
 type ServiceEnv struct {
@@ -43,7 +43,7 @@ type ServiceEnv struct {
 	LogLevel string // logger level for the service
 }
 
-// LoadAppConfig reads the settings written to the yml file
+// LoadAppConfig reads the settings written to the yml file.
 func LoadAppConfig(yamlFile embed.FS) *Config {
 	var env *string
 	if value := os.Getenv("WEB_APP_ENV"); value != "" {
@@ -53,23 +53,21 @@ func LoadAppConfig(yamlFile embed.FS) *Config {
 		flag.Parse()
 	}
 
-	file, err := yamlFile.ReadFile(fmt.Sprintf(AppConfigPath, *env))
-	if err != nil {
-		fmt.Printf("Failed to read application.%s.yml: %s", *env, err)
+	file, fileErr := yamlFile.ReadFile(fmt.Sprintf(AppConfigPath, *env))
+	if fileErr != nil {
 		os.Exit(ErrExitStatus)
 	}
 
 	config := &Config{}
 	if err := yaml.Unmarshal(file, config); err != nil {
-		fmt.Printf("Failed to read application.%s.yml: %s", *env, err)
 		os.Exit(ErrExitStatus)
 	}
 
 	return config
 }
 
-// Load the service environment variable related to the service configuration
-func LoadЕnvConfig() ServiceEnv {
+// Load the service environment variable related to the service configuration.
+func LoadEnvConfig() ServiceEnv {
 	envName := os.Getenv("environment")
 	if envName == "" {
 		envName = "local"

@@ -2,7 +2,6 @@ package main
 
 import (
 	"embed"
-	"os"
 	"time"
 
 	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
@@ -21,17 +20,11 @@ const (
 var version string
 
 func main() {
-	if err := run(); err != nil {
-		os.Exit(1)
-	}
-}
-
-func run() error {
 	upTime := time.Now().UTC().Format(time.RFC3339)
 	// setup : read environmental configurations
 	// setup : service logger
 	cfg := config.LoadAppConfig(yamlFile)
-	serviceEnv := config.LoadЕnvConfig()
+	serviceEnv := config.LoadEnvConfig()
 
 	// setup : service logger
 	lgr := logger.Setup(serviceEnv)
@@ -43,16 +36,10 @@ func run() error {
 		Str("version", version).
 		Str("logLevel", serviceEnv.LogLevel).
 		Str("port", serviceEnv.Port).
-		Str("dialect", cfg.Database.Dialect).
-		Str("Dbname", cfg.Database.Dbname).
-		Str("Host", cfg.Database.Host).
-		Str("Password", cfg.Database.Password).
-		Str("Username", cfg.Database.Username).
 		Msg("service details, starting the service")
 
 	// setup : start service
 	server.StartService(serviceEnv, cfg, lgr)
 
 	lgr.Fatal().Msg("service stopped")
-	return nil
 }

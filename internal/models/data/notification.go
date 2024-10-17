@@ -51,7 +51,3 @@ func NewNotification(key string, message string, status NotificationStatus, deli
 func (notification *Notification) ToString() string {
 	return notification.Key + " " + notification.Message + " " + string(notification.DeliveryChannel)
 }
-
-/**
- * &Notification{Name: "payment_cancelled", Type: "", Message: "Your payment has been cancelled", DeliveryChanges: []DeliveryChannel{Email, Slack}}
- */

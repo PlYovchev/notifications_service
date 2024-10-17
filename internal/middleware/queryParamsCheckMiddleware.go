@@ -8,16 +8,8 @@ import (
 	"github.com/plyovchev/sumup-assignment-notifications/internal/models/external"
 )
 
-var GetOrdersListReqParams = map[string]bool{
-	"limit":  true,
-	"offset": true,
-}
-
 var AllowedQueryParams = map[string]map[string]bool{
-	http.MethodGet + "/ecommerce/v1/orders":                            GetOrdersListReqParams,
 	http.MethodPost + "/public-api/v1/notifications/push-notification": nil,
-	http.MethodGet + "/ecommerce/v1/orders/:id":                        nil,
-	http.MethodDelete + "/ecommerce/v1/orders/:id":                     nil,
 }
 
 // QueryParamsCheckMiddleware - Middleware to check for unsupported query parameters.

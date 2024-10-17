@@ -43,7 +43,7 @@ type dbClient struct {
 	db *gorm.DB
 }
 
-func NewDbClient(
+func NewDBClient(
 	schema string,
 	logger *internal_logger.AppLogger,
 	cfg *config.Config,
@@ -96,7 +96,7 @@ func connectDatabase(schemaName string, config *config.Config) (*gorm.DB, error)
 	return nil, errors.New("connection to the DB cannot be established")
 }
 
-// Model specify the model you would like to run db operations
+// Model specify the model you would like to run db operations.
 func (rep *dbClient) Model(value interface{}) *gorm.DB {
 	return rep.db.Model(value)
 }
@@ -136,7 +136,7 @@ func (rep *dbClient) Save(value interface{}) *gorm.DB {
 	return rep.db.Save(value)
 }
 
-// Update update value in database
+// Update update value in database.
 func (rep *dbClient) Updates(value interface{}) *gorm.DB {
 	return rep.db.Updates(value)
 }
@@ -162,7 +162,7 @@ func (rep *dbClient) Scopes(funcs ...func(*gorm.DB) *gorm.DB) *gorm.DB {
 	return rep.db.Scopes(funcs...)
 }
 
-// ScanRows scan `*sql.Rows` to give struct
+// ScanRows scan `*sql.Rows` to give struct.
 func (rep *dbClient) ScanRows(rows *sql.Rows, result interface{}) error {
 	return rep.db.ScanRows(rows, result)
 }
@@ -173,12 +173,12 @@ func (rep *dbClient) Close() error {
 	return sqlDB.Close()
 }
 
-// DropTableIfExists drop table if it is exist
+// DropTableIfExists drop table if it is exist.
 func (rep *dbClient) DropTableIfExists(value interface{}) error {
 	return rep.db.Migrator().DropTable(value)
 }
 
-// AutoMigrate run auto migration for given models, will only add missing fields, won't delete/change current data
+// AutoMigrate run auto migration for given models, will only add missing fields, won't delete/change current data.
 func (rep *dbClient) AutoMigrate(value interface{}) error {
 	return rep.db.AutoMigrate(value)
 }
@@ -187,9 +187,11 @@ func (rep *dbClient) AutoMigrate(value interface{}) error {
 // If it is failed, will rollback and return error.
 // If it is sccuessed, will commit.
 // ref: https://github.com/jinzhu/gorm/blob/master/main.go#L533
-func (rep *dbClient) Transaction(fc func(tx DbClient) error) (err error) {
+func (rep *dbClient) Transaction(fc func(tx DbClient) error) error {
+	var err error
 	panicked := true
 	tx := rep.db.Begin()
+
 	defer func() {
 		if panicked || err != nil {
 			tx.Rollback()
@@ -205,5 +207,5 @@ func (rep *dbClient) Transaction(fc func(tx DbClient) error) (err error) {
 	}
 
 	panicked = false
-	return
+	return nil
 }
