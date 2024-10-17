@@ -1,18 +1,18 @@
 # Notifications service assignment
 
 ## Description
-This repo implements a notification service which accepts notification objects over HTTP REST and pushes them to different notification channels. Currently the supoorted channels are Email and Slack but the implementation allows for easy extension of additional notification channels like SMS, etc. 
+This repository implements a notification service which accepts notification objects over HTTP REST and pushes them to different notification channels. Currently the supported channels are Email and Slack but the implementation allows easy extension for additional notification channels like SMS, etc. 
 
 ## Architecture
 
-![SumUpNotificationService](https://github.com/user-attachments/assets/8580884e-fa08-41e6-86cc-650abfa7b17a)
+![SumUpNotificationService_v2](https://github.com/user-attachments/assets/65a25fb5-60f8-4214-bfaf-3457b570899d)
 
 https://drive.google.com/file/d/1FKyFudmjgg_3aQjebkB7i4CTZhbPkEqL/view?usp=sharing
 
 The project is built to run in a docker environment. It consists of the following services:
-1. Nginx - reverse proxy service which is reponsible for hiding the internal API and controlling which one should be exposed publicly. Other reponsibilities for the nginx are loadbalancing and rate-limiting.
+1. Nginx - reverse proxy service which is reponsible for hiding the internal API and controlling which one should be exposed publicly. Other reponsibilities for the nginx are loadbalancing and rate-limiting. The config of nginx is in /nginx folder.
 2. Postgres - the persistence layer is a Postgres database.
-3. Notification service - a Golang app which exposes an HTTP endpoint for pushing notifications, handles persisting the notifications in the persistence layer, and it is responsible for scheduling the actual sending of those notifications over the supported channels.
+3. Notification service - a Golang app which exposes an HTTP endpoint for pushing notifications, handles persistence of the notifications in the persistence layer, and it is responsible for scheduling the actual sending of those notifications over the supported channels.
 
 ### Notification service app
 The notification service app is written in Golang. The following libraries are used:
@@ -36,27 +36,29 @@ The notification service app is written in Golang. The following libraries are u
 
 #### Implementation behavior:
 The behavior of the notification service app is depicted on the diagram above. The key elements are:
-1. Once a notification input is pushed to the '/notifications/push-notifications' endpoint, the notification input is transformed into separate notification objects. The transformation logic uses the notificationInput.deliveryChannels to determine how many notifications should be created - one for each delivery channel;
+1. Once a notification input is pushed to the '/notifications/push-notifications' endpoint, the notification input is transformed into separate notification objects. The transformation logic uses the *notificationInput.deliveryChannels* property to determine how many notifications should be created - one for each delivery channel;
 2. After the internal notification objects are created, they are persisted with status **PENDING** in the database and the polling notification service object is notified that new notifications have been received;
-3. The notification service object is started with the starting of the app. It is responsible for processing any pending notifications that are stored in the database. It performs a polling logic over a specific period of time for any pending notifications, and it allows to be forcefully awaken using **notificationService#OnNotificationsReceived(notificationIds)** to process and prioritize any newly arrived notifications.
-4. When the notifications are processed, in case of error or misssing confirmation when a specific notifier is attempting to send notication over a channel, the processing for those failed notifications is retried in total of 3 times;
-5. Upon completion of sending of the notifications or exhausting the retry count, the notifications are saved in the database with updated status, respectively 'completed' or 'failed'.
+3. The observer/polling mechanism of the notification service is started with the starting of the app. It is responsible for processing any pending notifications that are stored in the database. It performs a polling logic over a specific period of time for any pending notifications, and it also allows to be forcefully awaken using **notificationService#OnNotificationsReceived(notificationIds)** to process and prioritize any newly arrived notifications.
+4. When the notifications are processed, in case of error or missing confirmation that a specific notifier successfully sent the notication over a channel, the processing for those failed notifications is retried in total of 3 times;
+5. Upon completion of sending of the notifications or exhausting the retry count, the notifications are saved in the database with updated status, respectively 'completed' and 'failed'.
 6. The notification status 'completed' and 'failed' are considered terminal at the moment.
 
 ## Running the project
 
-Pre-requisites: Docker, Docker Compose, Make
+#### Pre-requisites: **Docker**, **Docker Compose**, **Make**
 
-1. ```make start```
+1. ```make start``` - the **start** target calls ``docker-compose up -d`` so docker compose has to be installed in advance.
 
-Configuring the **notifiers** with **/resources/config/application.docker.yml**:
+#### Configuring the **notifiers**.
+The notifiers use properties which are sourced from **/resources/config/application.*.yml**. When running this setup with ``make start``, use **/resources/config/application.docker.yml**.
+The following properties have to be set:
 1. **EmailNotifier** required data:
-    - **from** - the email address from which the email notification should be sent;
+    - **from** - the email address from which the email notifications should be sent;
     - **password** - password for the *from* email address (for gmail.com this password should be generated by 'App password' functionality)
     - **recepients** - the email addresses of the receivers for the notifications;
     - **smtpHost** & **smtpPort** - host and port of the SMTP server;
 2. **SlackNotifier** required data:
-    - **webhookUrl** - valid webhookUrl generated by the 'https://api.slack.com/apps/' for the specific channel in Slack that should receive the notifications;
+    - **webhookUrl** - valid webhook url generated by the 'https://api.slack.com/apps/' for the specific channel in Slack that should receive the notifications;
 
 ## TODO
 1. Add unit tests as the key components of the notification service app are not covered with unit tests yet;
