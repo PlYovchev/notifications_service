@@ -5,7 +5,7 @@ This repository implements a notification service which accepts notification obj
 
 ## Architecture
 
-![SumUpNotificationService_v3](https://github.com/user-attachments/assets/e49c121c-ca39-4a3b-8c66-e66154d16440)
+![SumUpNotificationService_v3](https://github.com/user-attachments/assets/25ab464e-5995-4d8e-bdce-75029ab2412e)
 
 https://drive.google.com/file/d/1FKyFudmjgg_3aQjebkB7i4CTZhbPkEqL/view?usp=sharing
 
