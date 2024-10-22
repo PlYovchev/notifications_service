@@ -1,6 +1,6 @@
 package db
 
 const (
-	SCHEMA             string = "sumup_assignment"
+	SCHEMA             string = "notifications_schema"
 	NOTIFICATION_TABLE string = "notification"
 )

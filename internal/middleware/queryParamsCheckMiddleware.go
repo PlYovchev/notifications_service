@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/models/external"
+	"github.com/plyovchev/notifications-service/internal/logger"
+	"github.com/plyovchev/notifications-service/internal/models/external"
 )
 
 var AllowedQueryParams = map[string]map[string]bool{

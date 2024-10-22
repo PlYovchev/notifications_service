@@ -1,8 +1,8 @@
 package repositories
 
 import (
-	"github.com/plyovchev/sumup-assignment-notifications/internal/db"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/models/data"
+	"github.com/plyovchev/notifications-service/internal/db"
+	"github.com/plyovchev/notifications-service/internal/models/data"
 )
 
 type NotificationRepository interface {

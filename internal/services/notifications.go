@@ -4,12 +4,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/models/data"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/repositories"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/services/notifiers"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/util"
+	"github.com/plyovchev/notifications-service/internal/config"
+	"github.com/plyovchev/notifications-service/internal/logger"
+	"github.com/plyovchev/notifications-service/internal/models/data"
+	"github.com/plyovchev/notifications-service/internal/repositories"
+	"github.com/plyovchev/notifications-service/internal/services/notifiers"
+	"github.com/plyovchev/notifications-service/internal/util"
 )
 
 const (

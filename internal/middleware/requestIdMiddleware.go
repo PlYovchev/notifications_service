@@ -5,7 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
+	"github.com/plyovchev/notifications-service/internal/config"
 )
 
 func ReqIDMiddleware() gin.HandlerFunc {

@@ -1,4 +1,4 @@
-module github.com/plyovchev/sumup-assignment-notifications
+module github.com/plyovchev/notifications-service
 
 go 1.22
 

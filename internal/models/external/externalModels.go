@@ -1,6 +1,6 @@
 package external
 
-import "github.com/plyovchev/sumup-assignment-notifications/internal/models/data"
+import "github.com/plyovchev/notifications-service/internal/models/data"
 
 // APIError represents the structure of an API error response.
 type APIError struct {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/plyovchev/sumup-assignment-notifications/internal/util"
+	"github.com/plyovchev/notifications-service/internal/util"
 )
 
 type DevModeTestCase struct {

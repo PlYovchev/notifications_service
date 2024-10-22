@@ -1,9 +1,9 @@
 package notifiers
 
 import (
-	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/models/data"
+	"github.com/plyovchev/notifications-service/internal/config"
+	"github.com/plyovchev/notifications-service/internal/logger"
+	"github.com/plyovchev/notifications-service/internal/models/data"
 )
 
 // An interface for sending a notification to a 3rd party service.

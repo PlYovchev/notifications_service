@@ -3,7 +3,7 @@ package data
 import (
 	"time"
 
-	"github.com/plyovchev/sumup-assignment-notifications/internal/db"
+	"github.com/plyovchev/notifications-service/internal/db"
 )
 
 type NotificationType string

@@ -1,8 +1,8 @@
 -- Init schema and main notification table script
 
-CREATE SCHEMA IF NOT EXISTS sumup_assignment AUTHORIZATION postgres;
+CREATE SCHEMA IF NOT EXISTS notifications_schema AUTHORIZATION postgres;
 
-CREATE TABLE IF NOT EXISTS sumup_assignment.notification (
+CREATE TABLE IF NOT EXISTS notifications_schema.notification (
     id SERIAL PRIMARY KEY,
     key TEXT,
     message TEXT NOT NULL,

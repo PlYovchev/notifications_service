@@ -4,9 +4,9 @@ import (
 	"embed"
 	"time"
 
-	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/server"
+	"github.com/plyovchev/notifications-service/internal/config"
+	"github.com/plyovchev/notifications-service/internal/logger"
+	"github.com/plyovchev/notifications-service/internal/server"
 )
 
 //go:embed resources/config/application.*.yml

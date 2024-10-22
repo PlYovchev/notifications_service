@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
+	"github.com/plyovchev/notifications-service/internal/logger"
 )
 
 func RequestLogMiddleware(lgr *logger.AppLogger) gin.HandlerFunc {

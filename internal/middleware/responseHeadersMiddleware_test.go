@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/middleware"
+	"github.com/plyovchev/notifications-service/internal/middleware"
 	"github.com/stretchr/testify/assert"
 )
 

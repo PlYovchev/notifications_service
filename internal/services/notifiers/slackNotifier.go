@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/models/data"
+	"github.com/plyovchev/notifications-service/internal/logger"
+	"github.com/plyovchev/notifications-service/internal/models/data"
 )
 
 const slackWebhookTimeout = 30 * time.Second

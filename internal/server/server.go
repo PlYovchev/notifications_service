@@ -5,16 +5,16 @@ import (
 	"sync"
 
 	"github.com/gin-contrib/gzip"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/db"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/logger"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/repositories"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/services"
+	"github.com/plyovchev/notifications-service/internal/config"
+	"github.com/plyovchev/notifications-service/internal/db"
+	"github.com/plyovchev/notifications-service/internal/logger"
+	"github.com/plyovchev/notifications-service/internal/repositories"
+	"github.com/plyovchev/notifications-service/internal/services"
 
 	"github.com/gin-gonic/gin"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/handlers"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/middleware"
-	"github.com/plyovchev/sumup-assignment-notifications/internal/util"
+	"github.com/plyovchev/notifications-service/internal/handlers"
+	"github.com/plyovchev/notifications-service/internal/middleware"
+	"github.com/plyovchev/notifications-service/internal/util"
 )
 
 var startOnce sync.Once

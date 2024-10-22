@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/plyovchev/sumup-assignment-notifications/internal/config"
-	internal_logger "github.com/plyovchev/sumup-assignment-notifications/internal/logger"
+	"github.com/plyovchev/notifications-service/internal/config"
+	internal_logger "github.com/plyovchev/notifications-service/internal/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
