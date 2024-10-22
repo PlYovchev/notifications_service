@@ -1,11 +1,11 @@
-# Notifications service assignment
+# Notifications service
 
 ## Description
 This repository implements a notification service which accepts notification objects over HTTP REST and pushes them to different notification channels. Currently the supported channels are Email and Slack but the implementation allows easy extension for additional notification channels like SMS, etc. 
 
 ## Architecture
 
-![SumUpNotificationService_v3](https://github.com/user-attachments/assets/25ab464e-5995-4d8e-bdce-75029ab2412e)
+![NotificationService_v3](https://github.com/user-attachments/assets/25ab464e-5995-4d8e-bdce-75029ab2412e)
 
 https://drive.google.com/file/d/1FKyFudmjgg_3aQjebkB7i4CTZhbPkEqL/view?usp=sharing
 
